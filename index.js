@@ -41,6 +41,7 @@ async function run() {
     await client.connect();
 
     const jobCollection = client.db("jobBox").collection("jobs");
+    const categoryCollection = client.db("jobBox").collection("category");
    
 
     // auth api
@@ -56,25 +57,37 @@ async function run() {
     //   .send({success:true});
     // })
 
-   
+    app.post('/jobs', async(req, res)=>{
+      const job =req.body;
+      const result=await jobCollection.insertOne(job);
+      res.send(result);
+    })
+
     app.get('/jobs', async(req, res)=>{
         const cursor =jobCollection.find();
         const result =await cursor.toArray();
         res.send(result);
     })
 
-    app.get('/jobs/:id', async(req, res)=>{
+    app.get('/jobs/bid/:id', async(req, res)=>{
         const id =req.params.id;
         const query ={_id: new ObjectId(id)};
         const result =await jobCollection.findOne(query);
         res.send(result);
     })
     
-    app.post('/jobs', async(req, res)=>{
-      const job =req.body;
-      const result=await jobCollection.insertOne(job);
+    app.get('/category', async(req, res)=>{
+      const cursor =categoryCollection.find();
+      const result =await cursor.toArray();
       res.send(result);
-    })
+  })
+  
+  app.get('/jobs/:category', async(req, res)=>{
+    const category =req.params.category;
+    const query ={'category': category};
+    const result =await jobCollection.find(query).toArray();
+    res.send(result);
+  })
 
 
     // app.delete('/orders/:id', async(req, res)=>{
